@@ -1,7 +1,41 @@
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 import { Link } from "react-router-dom";
+import { Formik, Field, Form, ErrorMessage } from "formik";
+import StyledErrorMessage from "./StyledErrorMessage";
+import * as Yup from "yup";
 
 const NoteForm = ({ isCreate }) => {
+  const initialValues = {
+    title: "",
+    content: "",
+  };
+
+  const NoteFormSchema = Yup.object({
+    title: Yup.string()
+      .min(3, "Title is so short")
+      .max(30, "Title is too long")
+      .required("Title is required"),
+    content: Yup.string()
+      .min(3, "Content is Too short")
+      .required("Content is required"),
+  });
+
+  // const validate = (values) => {
+  //   const errors = {};
+
+  //   if (values.title.trim().length < 10) {
+  //     errors.title = "Title must have 10 length";
+  //   }
+
+  //   if (values.content.trim().length < 10) {
+  //     errors.content = "content must have 10 length";
+  //   }
+  //   return errors;
+  // };
+
+  const submitHandler = (values) => {
+    console.log(values);
+  };
   return (
     <section>
       <div className="flex items-center justify-between">
@@ -12,36 +46,47 @@ const NoteForm = ({ isCreate }) => {
           <ArrowLeftIcon width={22} />
         </Link>
       </div>
-      <form>
-        <div className="mb-3">
-          <label htmlFor="title" className=" font-medium block">
-            Note title
-          </label>
-          <input
-            type="text"
-            name="title"
-            id="title"
-            className=" text-lg border-2 border-teal-600 py-1 w-full rounded-lg"
-          />
-        </div>
-        <div className="">
-          <label htmlFor="description" className=" font-medium block">
-            Note description
-          </label>
-          <textarea
-            rows={4}
-            type="text"
-            name="description"
-            id="description"
-            className=" text-lg border-2 border-teal-600 py-1 w-full rounded-lg"
-          />
-        </div>
-        <button className=" text-white bg-teal-600 py-3 font-medium w-full text-center">
-          Save
-        </button>
-      </form>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={NoteFormSchema}
+        onSubmit={submitHandler}
+      >
+        <Form>
+          <div className="mb-3">
+            <label htmlFor="title" className=" font-medium block">
+              Note title
+            </label>
+            <Field
+              type="text"
+              name="title"
+              id="title"
+              className=" text-lg border-2 border-teal-600 py-1 w-full rounded-lg"
+            />
+            <StyledErrorMessage name="title" />
+          </div>
+          <div className="">
+            <label htmlFor="content" className=" font-medium block">
+              Note content
+            </label>
+            <Field
+              as="textarea"
+              rows={4}
+              type="text"
+              name="content"
+              id="content"
+              className=" text-lg border-2 border-teal-600 py-1 w-full rounded-lg"
+            />
+            <StyledErrorMessage name="content" />
+          </div>
+          <button
+            className=" text-white bg-teal-600 py-3 font-medium w-full text-center"
+            type="on-submit"
+          >
+            Save
+          </button>
+        </Form>
+      </Formik>
     </section>
   );
 };
-
 export default NoteForm;
