@@ -1,0 +1,28 @@
+const { Schema, model } = require("mongoose");
+
+const noteSchema = new Schema(
+  {
+    title: {
+      required: true,
+      minLength: 3,
+      maxLength: 30,
+      type: String,
+    },
+    content: {
+      required: true,
+      minLength: 3,
+      type: String,
+    },
+    author: {
+      type: String,
+      default: "Anonymous",
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+const noteModel = model("Note", noteSchema);
+
+module.exports = noteModel;
