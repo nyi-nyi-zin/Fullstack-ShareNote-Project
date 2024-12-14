@@ -22,7 +22,7 @@ const Note = ({ note, fetchNotes, customAlert }) => {
   return (
     <div className=" w-2/5 border-t-4 border-t-teal-600 shadow-lg p-3 h-fit">
       <h3 className="text-xl font-medium">{note.title}</h3>
-      <p className="text-sm">{note.content.slice(0, 120)}</p>
+      <p className="text-sm">{note.content.slice(0, 50)}</p>
       <div className="flex items-center justify-between mt-2 border-t pt-2">
         <p>
           {formatISO9075(new Date(note.createdAt), { representation: "date" })}

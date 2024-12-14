@@ -1,16 +1,38 @@
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import { Formik, Field, Form } from "formik";
 import StyledErrorMessage from "./StyledErrorMessage";
 import * as Yup from "yup";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Bounce, ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const NoteForm = ({ isCreate }) => {
-  const [redirect, setRedirect] = useState(false);
-  const initialValues = {
+  const { id } = useParams();
+
+  const [oldFormData, setOldFormData] = useState({
     title: "",
     content: "",
+  });
+
+  const [redirect, setRedirect] = useState(false);
+
+  const initialValues = {
+    title: isCreate ? "" : oldFormData.title,
+    content: isCreate ? "" : oldFormData.content,
   };
+
+  const fetchOldData = async () => {
+    const response = await fetch(`${import.meta.env.VITE_URL}/edit/${id}`);
+    const data = await response.json();
+    setOldFormData(data);
+  };
+
+  useEffect(() => {
+    if (!isCreate) {
+      fetchOldData();
+    }
+  }, []);
 
   const NoteFormSchema = Yup.object({
     title: Yup.string()
@@ -23,24 +45,35 @@ const NoteForm = ({ isCreate }) => {
   });
 
   const submitHandler = async (values) => {
-    if (isCreate) {
-      const response = await fetch(`${import.meta.env.VITE_URL}/create`, {
-        method: "post",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
+    const url = isCreate
+      ? `${import.meta.env.VITE_URL}/create`
+      : `${import.meta.env.VITE_URL}/update/${id}`;
+    const method = isCreate ? "POST" : "PATCH";
+    const response = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(values),
+    });
+    if (response.status === 201 || response.status === 200) {
+      setRedirect(true);
+    } else {
+      toast.error("Something went wrong", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
       });
-      if (response.status === 201) {
-        setRedirect(true);
-      } else {
-        customAlert("Something Went Wrong!", "error");
-      }
     }
   };
-
   if (redirect) {
-    return Navigate("/");
+    return <Navigate to={"/"} />;
   }
 
   return (
@@ -70,6 +103,7 @@ const NoteForm = ({ isCreate }) => {
         initialValues={initialValues}
         validationSchema={NoteFormSchema}
         onSubmit={submitHandler}
+        enableReinitialize={true}
       >
         <Form>
           <div className="mb-3">
@@ -103,7 +137,7 @@ const NoteForm = ({ isCreate }) => {
             className=" text-white bg-teal-600 py-3 font-medium w-full text-center"
             type="submit"
           >
-            Save
+            {isCreate ? "Save" : " Update"}
           </button>
         </Form>
       </Formik>

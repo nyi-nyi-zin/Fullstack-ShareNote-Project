@@ -35,7 +35,7 @@ exports.createNote = (req, res, next) => {
 
   Note.create({ title, content })
     .then(() => {
-      return res.status(404).json({
+      return res.status(201).json({
         message: "Note created",
         data: {
           title,
@@ -57,6 +57,40 @@ exports.getNote = (req, res, next) => {
   Note.findById(id)
     .then((note) => {
       return res.status(200).json({ note });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(404).json({
+        message: "Something went wrong",
+      });
+    });
+};
+
+//Render edit page
+exports.getEdit = (req, res, next) => {
+  const { id } = req.params;
+  Note.findById(id)
+    .then((note) => {
+      return res.status(200).json(note);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(404).json({
+        message: "Something went wrong",
+      });
+    });
+};
+
+// PATCH/note
+exports.updateNote = (req, res, next) => {
+  const { id } = req.params;
+  const { title, content } = req.body;
+  Note.findByIdAndUpdate(id, {
+    title,
+    content,
+  })
+    .then((result) => {
+      res.status(200).json("Updated Successfully");
     })
     .catch((err) => {
       console.log(err);

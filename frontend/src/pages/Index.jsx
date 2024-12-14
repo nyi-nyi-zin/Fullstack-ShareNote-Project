@@ -1,5 +1,5 @@
 import Note from "../components/Note";
-import Plus from "../components/Plus";
+
 import { useEffect, useState } from "react";
 import { ToastContainer, toast, Bounce } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -59,7 +59,6 @@ const Index = () => {
               customAlert={customAlert}
             />
           ))}
-          <Plus />
         </>
       ) : (
         <>
