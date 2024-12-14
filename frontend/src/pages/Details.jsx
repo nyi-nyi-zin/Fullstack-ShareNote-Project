@@ -10,7 +10,7 @@ const Details = () => {
 
   const fetchNote = async () => {
     setLoading(true);
-    const response = await fetch(`${import.meta.env.VITE_URL}/notes/${id}`);
+    const response = await fetch(`${import.meta.env.VITE_URL}/note/${id}`);
     if (!response.ok) {
       throw new Error("Failed to fetch note");
     }

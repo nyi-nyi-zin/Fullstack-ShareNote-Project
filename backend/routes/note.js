@@ -25,7 +25,10 @@ router.post(
   noteController.createNote
 );
 
-// GET/notes/:id
-router.get("/notes/:id", noteController.getNote);
+// GET/note/:id
+router.get("/note/:id", noteController.getNote);
+
+// DELETE/
+router.delete("/delete/:id", noteController.deleteNote);
 
 module.exports = router;

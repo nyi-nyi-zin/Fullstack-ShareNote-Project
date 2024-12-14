@@ -26,7 +26,7 @@ const App = () => {
           element: <Edit />,
         },
         {
-          path: "/notes/:id",
+          path: "/note/:id",
           element: <Details />,
         },
       ],

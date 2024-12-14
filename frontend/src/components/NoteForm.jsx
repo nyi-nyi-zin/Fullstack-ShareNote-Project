@@ -1,10 +1,12 @@
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
-import { Link } from "react-router-dom";
-import { Formik, Field, Form, ErrorMessage } from "formik";
+import { Link, Navigate } from "react-router-dom";
+import { Formik, Field, Form } from "formik";
 import StyledErrorMessage from "./StyledErrorMessage";
 import * as Yup from "yup";
+import { useState } from "react";
 
 const NoteForm = ({ isCreate }) => {
+  const [redirect, setRedirect] = useState(false);
   const initialValues = {
     title: "",
     content: "",
@@ -20,24 +22,42 @@ const NoteForm = ({ isCreate }) => {
       .required("Content is required"),
   });
 
-  // const validate = (values) => {
-  //   const errors = {};
-
-  //   if (values.title.trim().length < 10) {
-  //     errors.title = "Title must have 10 length";
-  //   }
-
-  //   if (values.content.trim().length < 10) {
-  //     errors.content = "content must have 10 length";
-  //   }
-  //   return errors;
-  // };
-
-  const submitHandler = (values) => {
-    console.log(values);
+  const submitHandler = async (values) => {
+    if (isCreate) {
+      const response = await fetch(`${import.meta.env.VITE_URL}/create`, {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+      if (response.status === 201) {
+        setRedirect(true);
+      } else {
+        customAlert("Something Went Wrong!", "error");
+      }
+    }
   };
+
+  if (redirect) {
+    return Navigate("/");
+  }
+
   return (
     <section>
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition={Bounce}
+      />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold mb-5">
           {isCreate ? "Create a new note." : "Edit your note."}
@@ -56,6 +76,7 @@ const NoteForm = ({ isCreate }) => {
             <label htmlFor="title" className=" font-medium block">
               Note title
             </label>
+
             <Field
               type="text"
               name="title"
@@ -80,7 +101,7 @@ const NoteForm = ({ isCreate }) => {
           </div>
           <button
             className=" text-white bg-teal-600 py-3 font-medium w-full text-center"
-            type="on-submit"
+            type="submit"
           >
             Save
           </button>
