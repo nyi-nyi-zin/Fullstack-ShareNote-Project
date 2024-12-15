@@ -13,6 +13,9 @@ const noteSchema = new Schema(
       minLength: 3,
       type: String,
     },
+    cover_image: {
+      type: String,
+    },
     author: {
       type: String,
       default: "Anonymous",

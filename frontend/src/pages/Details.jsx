@@ -38,6 +38,13 @@ const Details = () => {
               Back
             </Link>
           </div>
+          {note.cover_image && (
+            <img
+              src={`${import.meta.env.VITE_URL}/${note.cover_image}`}
+              alt={note.title}
+              className="my-10 w-full object-cover "
+            />
+          )}
           <div className="border-t-4 border-t-teal-600 shadow-lg p-3 mt-4">
             <h3 className="text-3xl font-medium">{note.title}</h3>
             <p className="text-base mt-2 flex items-center">

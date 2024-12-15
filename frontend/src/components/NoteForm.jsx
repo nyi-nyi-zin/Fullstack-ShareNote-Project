@@ -1,9 +1,9 @@
-import { ArrowLeftIcon } from "@heroicons/react/24/solid";
+import { ArrowLeftIcon, ArrowUpTrayIcon } from "@heroicons/react/24/solid";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { Formik, Field, Form } from "formik";
 import StyledErrorMessage from "./StyledErrorMessage";
 import * as Yup from "yup";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Bounce, ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -14,13 +14,18 @@ const NoteForm = ({ isCreate }) => {
     title: "",
     content: "",
   });
-
   const [redirect, setRedirect] = useState(false);
+  const [previewImg, setPreviewImg] = useState(null);
+  const fileRef = useRef();
 
   const initialValues = {
     title: isCreate ? "" : oldFormData.title,
     content: isCreate ? "" : oldFormData.content,
+    note_id: isCreate ? "" : oldFormData._id,
+    cover_image: isCreate ? null : oldFormData.cover_image,
   };
+
+  const SUPPORTED_FORMATS = ["image/png", "image/jpg", "image/jpeg"];
 
   const fetchOldData = async () => {
     const response = await fetch(`${import.meta.env.VITE_URL}/edit/${id}`);
@@ -42,19 +47,44 @@ const NoteForm = ({ isCreate }) => {
     content: Yup.string()
       .min(3, "Content is Too short")
       .required("Content is required"),
+    cover_image: Yup.mixed()
+      .nullable()
+      .test(
+        "FILE_FORMAT",
+        "File type is not support",
+        (value) => !value || SUPPORTED_FORMATS.includes(value.type)
+      ),
   });
+
+  const handleImageChange = (event, setFieldValue) => {
+    const selectedImage = event.target.files[0];
+    if (selectedImage) {
+      setPreviewImg(URL.createObjectURL(selectedImage));
+      setFieldValue("cover_image", selectedImage);
+    }
+  };
+
+  const clearPreviewImage = (setFieldValue) => {
+    setPreviewImg(null);
+    setFieldValue("cover_image", null);
+  };
 
   const submitHandler = async (values) => {
     const url = isCreate
       ? `${import.meta.env.VITE_URL}/create`
       : `${import.meta.env.VITE_URL}/update/${id}`;
     const method = isCreate ? "POST" : "PATCH";
+
+    const formData = new FormData();
+    formData.append("title", values.title);
+    formData.append("content", values.content);
+    formData.append("cover_image", values.cover_image);
+    formData.append("note_id", values.note_id);
+
     const response = await fetch(url, {
       method,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(values),
+
+      body: formData,
     });
     if (response.status === 201 || response.status === 200) {
       setRedirect(true);
@@ -105,41 +135,88 @@ const NoteForm = ({ isCreate }) => {
         onSubmit={submitHandler}
         enableReinitialize={true}
       >
-        <Form>
-          <div className="mb-3">
-            <label htmlFor="title" className=" font-medium block">
-              Note title
-            </label>
+        {({ errors, touched, values, setFieldValue }) => (
+          <Form encType="multipart/form-data">
+            <div className="mb-3">
+              <label htmlFor="title" className=" font-medium block">
+                Note title
+              </label>
 
-            <Field
-              type="text"
-              name="title"
-              id="title"
-              className=" text-lg border-2 border-teal-600 py-1 w-full rounded-lg"
+              <Field
+                type="text"
+                name="title"
+                id="title"
+                className=" text-lg border-2 border-teal-600 py-1 w-full rounded-lg"
+              />
+              <StyledErrorMessage name="title" />
+            </div>
+            <div>
+              <label htmlFor="content" className=" font-medium block">
+                Note content
+              </label>
+              <Field
+                as="textarea"
+                rows={4}
+                type="text"
+                name="content"
+                id="content"
+                className=" text-lg border-2 border-teal-600 py-1 w-full rounded-lg"
+              />
+              <StyledErrorMessage name="content" />
+            </div>
+            <div className="flex justify-between">
+              <label htmlFor="cover_image" className="font-medium">
+                Cover Image <span>(optional)</span>
+              </label>
+              {previewImg && (
+                <p
+                  className="cursor-pointer font-medium"
+                  onClick={() => {
+                    clearPreviewImage(setFieldValue);
+                  }}
+                >
+                  Clear
+                </p>
+              )}
+            </div>
+
+            <input
+              type="file"
+              name="cover_image"
+              hidden
+              ref={fileRef}
+              onChange={(e) => {
+                handleImageChange(e, setFieldValue);
+              }}
             />
-            <StyledErrorMessage name="title" />
-          </div>
-          <div className="">
-            <label htmlFor="content" className=" font-medium block">
-              Note content
-            </label>
-            <Field
-              as="textarea"
-              rows={4}
-              type="text"
-              name="content"
-              id="content"
-              className=" text-lg border-2 border-teal-600 py-1 w-full rounded-lg"
-            />
-            <StyledErrorMessage name="content" />
-          </div>
-          <button
-            className=" text-white bg-teal-600 py-3 font-medium w-full text-center"
-            type="submit"
-          >
-            {isCreate ? "Save" : " Update"}
-          </button>
-        </Form>
+            <div
+              className="border border-teal-600 flex items-center justify-center text-teal-600 mb-3 h-60 cursor-pointer rounded-lg relative overflow-hidden "
+              onClick={() => {
+                fileRef.current.click();
+              }}
+            >
+              <ArrowUpTrayIcon
+                width={30}
+                height={30}
+                className="z-20 text-yellow-400"
+              />
+              {previewImg && (
+                <img
+                  src={previewImg}
+                  alt="preview"
+                  className="w-full absolute top-0 left-0 h-full object-cover opacity-90 z-1000"
+                />
+              )}
+            </div>
+            <StyledErrorMessage name="cover_image" />
+            <button
+              className=" text-white bg-teal-600 py-3 font-medium w-full text-center mt-2"
+              type="submit"
+            >
+              {isCreate ? "Save" : " Update"}
+            </button>
+          </Form>
+        )}
       </Formik>
     </section>
   );
