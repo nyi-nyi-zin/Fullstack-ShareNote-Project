@@ -3,6 +3,9 @@ const { validationResult } = require("express-validator");
 //Model
 const Note = require("../models/note");
 
+//Utils
+const { unlink } = require("../utils/unlink");
+
 // GET/notes
 exports.getNotes = (req, res, next) => {
   Note.find()
@@ -91,12 +94,20 @@ exports.getEdit = (req, res, next) => {
 exports.updateNote = (req, res, next) => {
   const { id } = req.params;
   const { title, content } = req.body;
-  Note.findByIdAndUpdate(id, {
-    title,
-    content,
-  })
-    .then((result) => {
-      res.status(200).json("Updated Successfully");
+  const cover_image = req.file;
+
+  Note.findById(id)
+    .then((note) => {
+      note.title = title;
+      note.content = content;
+      if (cover_image) {
+        unlink(note.cover_image);
+        note.cover_image = cover_image.path;
+      }
+      return note.save();
+    })
+    .then(() => {
+      return res.status(200).json("Updated Successfully");
     })
     .catch((err) => {
       console.log(err);
@@ -110,6 +121,9 @@ exports.updateNote = (req, res, next) => {
 exports.deleteNote = (req, res, next) => {
   const { id } = req.params;
   Note.findByIdAndDelete(id)
+    .then((note) => {
+      return unlink(note.cover_image);
+    })
     .then((_) => {
       return res.status(204).json("Note Deleted");
     })

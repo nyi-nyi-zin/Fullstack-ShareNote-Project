@@ -1,17 +1,27 @@
+//Load dotenv
+require("dotenv").config();
+
+//Imports
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
-require("dotenv").config();
 const multer = require("multer");
 const path = require("path");
 const bodyParser = require("body-parser");
 
+//Express initialize
 const app = express();
+
+//Middleware setup
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+//Route import
 const noteRoute = require("./routes/note");
 
+//File upload setup
 const storageConfiguration = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads");
@@ -21,7 +31,6 @@ const storageConfiguration = multer.diskStorage({
     cb(null, suffix + "-" + file.originalname);
   },
 });
-
 const filterConfiguration = (req, file, cb) => {
   if (
     file.mimetype === "image/png" ||
@@ -33,8 +42,6 @@ const filterConfiguration = (req, file, cb) => {
     cb(null, undefined);
   }
 };
-
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(
   multer({
     storage: storageConfiguration,
@@ -42,8 +49,10 @@ app.use(
   }).single("cover_image")
 );
 
+//Routes register
 app.use(noteRoute);
 
+//Database & server start
 mongoose
   .connect(process.env.MONGODB_URL)
   .then(() => {

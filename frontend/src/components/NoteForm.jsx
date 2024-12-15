@@ -16,6 +16,7 @@ const NoteForm = ({ isCreate }) => {
   });
   const [redirect, setRedirect] = useState(false);
   const [previewImg, setPreviewImg] = useState(null);
+  const [isUpload, setIsUpload] = useState(false);
   const fileRef = useRef();
 
   const initialValues = {
@@ -67,6 +68,9 @@ const NoteForm = ({ isCreate }) => {
   const clearPreviewImage = (setFieldValue) => {
     setPreviewImg(null);
     setFieldValue("cover_image", null);
+    if (isCreate) {
+      fileRef.current.value = "";
+    }
   };
 
   const submitHandler = async (values) => {
@@ -102,6 +106,7 @@ const NoteForm = ({ isCreate }) => {
       });
     }
   };
+
   if (redirect) {
     return <Navigate to={"/"} />;
   }
@@ -164,6 +169,7 @@ const NoteForm = ({ isCreate }) => {
               />
               <StyledErrorMessage name="content" />
             </div>
+
             <div className="flex justify-between">
               <label htmlFor="cover_image" className="font-medium">
                 Cover Image <span>(optional)</span>
@@ -179,7 +185,6 @@ const NoteForm = ({ isCreate }) => {
                 </p>
               )}
             </div>
-
             <input
               type="file"
               name="cover_image"
@@ -189,25 +194,68 @@ const NoteForm = ({ isCreate }) => {
                 handleImageChange(e, setFieldValue);
               }}
             />
-            <div
-              className="border border-teal-600 flex items-center justify-center text-teal-600 mb-3 h-60 cursor-pointer rounded-lg relative overflow-hidden "
-              onClick={() => {
-                fileRef.current.click();
-              }}
-            >
-              <ArrowUpTrayIcon
-                width={30}
-                height={30}
-                className="z-20 text-yellow-400"
-              />
-              {previewImg && (
-                <img
-                  src={previewImg}
-                  alt="preview"
-                  className="w-full absolute top-0 left-0 h-full object-cover opacity-90 z-1000"
-                />
-              )}
-            </div>
+            {!isUpload ? (
+              <>
+                <p
+                  onClick={() => {
+                    setIsUpload(true);
+                  }}
+                  className="cursor-pointer  text-teal-600"
+                >
+                  Upload Cover Image
+                </p>
+              </>
+            ) : (
+              <>
+                <p
+                  className="cursor-pointer text-teal-600"
+                  onClick={() => {
+                    setIsUpload(false);
+                  }}
+                >
+                  Disable Cover Image
+                </p>
+                <div
+                  className="border border-teal-600 flex items-center justify-center text-teal-600 mb-3 h-60 cursor-pointer rounded-lg relative overflow-hidden "
+                  onClick={() => {
+                    fileRef.current.click();
+                  }}
+                >
+                  <ArrowUpTrayIcon
+                    width={30}
+                    height={30}
+                    className="z-20 text-yellow-400"
+                  />
+                  {isCreate ? (
+                    <>
+                      {previewImg && (
+                        <img
+                          src={previewImg}
+                          alt="preview"
+                          className=" absolute top-0 left-0   opacity-90 z-1000 h-full w-full p-2 rounded-lg"
+                        />
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <img
+                          src={
+                            previewImg
+                              ? previewImg
+                              : `${import.meta.env.VITE_URL}/${
+                                  oldFormData.cover_image
+                                }`
+                          }
+                          alt="preview"
+                          className=" absolute top-0 left-0   opacity-90 z-1000 h-full w-full p-2 rounded-lg"
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+              </>
+            )}
             <StyledErrorMessage name="cover_image" />
             <button
               className=" text-white bg-teal-600 py-3 font-medium w-full text-center mt-2"

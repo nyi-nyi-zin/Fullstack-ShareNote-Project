@@ -42,7 +42,7 @@ const Details = () => {
             <img
               src={`${import.meta.env.VITE_URL}/${note.cover_image}`}
               alt={note.title}
-              className="my-10 w-full object-cover "
+              className="my-10 w-full"
             />
           )}
           <div className="border-t-4 border-t-teal-600 shadow-lg p-3 mt-4">
