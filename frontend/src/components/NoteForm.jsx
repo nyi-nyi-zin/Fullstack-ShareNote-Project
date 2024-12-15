@@ -140,7 +140,7 @@ const NoteForm = ({ isCreate }) => {
         onSubmit={submitHandler}
         enableReinitialize={true}
       >
-        {({ errors, touched, values, setFieldValue }) => (
+        {({ setFieldValue }) => (
           <Form encType="multipart/form-data">
             <div className="mb-3">
               <label htmlFor="title" className=" font-medium block">
@@ -208,7 +208,7 @@ const NoteForm = ({ isCreate }) => {
             ) : (
               <>
                 <p
-                  className="cursor-pointer text-teal-600"
+                  className="cursor-pointer text-red-600"
                   onClick={() => {
                     setIsUpload(false);
                   }}
