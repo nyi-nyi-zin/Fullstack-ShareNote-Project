@@ -20,6 +20,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 //Route import
 const noteRoute = require("./routes/note");
+const authRoute = require("./routes/auth");
 
 //File upload setup
 const storageConfiguration = multer.diskStorage({
@@ -51,6 +52,7 @@ app.use(
 
 //Routes register
 app.use(noteRoute);
+app.use(authRoute);
 
 //Database & server start
 mongoose

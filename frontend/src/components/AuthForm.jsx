@@ -1,8 +1,15 @@
 import { Formik, Field, Form } from "formik";
 import StyledErrorMessage from "./StyledErrorMessage";
 import * as Yup from "yup";
+import { useState } from "react";
+import { Navigate } from "react-router-dom";
+
+import { ToastContainer, toast, Bounce } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AuthForm = ({ isLogin }) => {
+  const [redirect, setRedirect] = useState(false);
+
   const initialValues = {
     username: "",
     email: "",
@@ -23,63 +30,119 @@ const AuthForm = ({ isLogin }) => {
       .required("Password is Required"),
   });
 
-  const submitHandler = (values) => {};
+  const submitHandler = async (values) => {
+    const { username, password, email } = values;
+    if (isLogin) {
+    } else {
+      const response = await fetch(`${import.meta.env.VITE_URL}/register`, {
+        method: "POST",
+        body: JSON.stringify({ username, password, email }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (response.status === 201) {
+        setRedirect(true);
+      } else if (response.status === 400) {
+        const data = await response.json();
+        const pickedMessage = data.errorMessages[0].msg;
+        console.log(pickedMessage);
+        toast.error(pickedMessage, {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
+      }
+    }
+  };
+
+  if (redirect) {
+    return <Navigate to={"/"} />;
+  }
+
   return (
-    <Formik
-      initialValues={initialValues}
-      onSubmit={submitHandler}
-      validationSchema={AuthFormSchema}
-    >
-      {() => (
-        <Form className="w-1/2 mx-auto">
-          <h1 className="text-center font-bold text-4xl my-4 text-teal-700">
-            {isLogin ? "Login" : "Register"}
-          </h1>
-          <div className="mb-3">
-            <label htmlFor="username" className=" font-medium block">
-              Username
-            </label>
-            <Field
-              type="text"
-              name="username"
-              id="username"
-              className=" text-lg border-2 border-teal-600 py-1 w-full rounded-lg"
-            />
-            <StyledErrorMessage name="username" />
-          </div>
-          <div className="mb-3">
-            <label htmlFor="email" className=" font-medium block">
-              Email
-            </label>
-            <Field
-              type="text"
-              name="email"
-              id="email"
-              className=" text-lg border-2 border-teal-600 py-1 w-full rounded-lg"
-            />
-            <StyledErrorMessage name="email" />
-          </div>
-          <div className="mb-3">
-            <label htmlFor="password" className=" font-medium block">
-              Password
-            </label>
-            <Field
-              type="text"
-              name="password"
-              id="password"
-              className=" text-lg border-2 border-teal-600 py-1 w-full rounded-lg"
-            />
-            <StyledErrorMessage name="password" />
-          </div>
-          <button
-            className=" text-white bg-teal-600 py-3 font-medium w-full text-center mt-2"
-            type="submit"
-          >
-            {isLogin ? "Login" : " Register"}
-          </button>
-        </Form>
-      )}
-    </Formik>
+    <>
+      <Formik
+        initialValues={initialValues}
+        onSubmit={submitHandler}
+        validationSchema={AuthFormSchema}
+      >
+        {() => (
+          <Form className="w-1/2 mx-auto">
+            <h1 className="text-center font-bold text-4xl my-4 text-teal-700">
+              {isLogin ? "Login" : "Register"}
+            </h1>
+            {isLogin ? (
+              <></>
+            ) : (
+              <>
+                <div className="mb-3">
+                  <label htmlFor="username" className=" font-medium block">
+                    Username
+                  </label>
+                  <Field
+                    type="text"
+                    name="username"
+                    id="username"
+                    className=" text-lg border-2 border-teal-600 py-1 w-full rounded-lg"
+                  />
+                  <StyledErrorMessage name="username" />
+                </div>
+              </>
+            )}
+            <div className="mb-3">
+              <label htmlFor="email" className=" font-medium block">
+                Email
+              </label>
+              <Field
+                type="text"
+                name="email"
+                id="email"
+                className=" text-lg border-2 border-teal-600 py-1 w-full rounded-lg"
+              />
+              <StyledErrorMessage name="email" />
+            </div>
+            <div className="mb-3">
+              <label htmlFor="password" className=" font-medium block">
+                Password
+              </label>
+              <Field
+                type="password"
+                name="password"
+                id="password"
+                className=" text-lg border-2 border-teal-600 py-1 w-full rounded-lg"
+              />
+              <StyledErrorMessage name="password" />
+            </div>
+            <button
+              className=" text-white bg-teal-600 py-3 font-medium w-full text-center mt-2"
+              type="submit"
+            >
+              {isLogin ? "Login" : " Register"}
+            </button>
+          </Form>
+        )}
+      </Formik>
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition={Bounce}
+      />
+    </>
   );
 };
 export default AuthForm;
