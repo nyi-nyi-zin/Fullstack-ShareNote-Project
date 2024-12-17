@@ -7,7 +7,7 @@ const User = require("../models/user");
 // GET/register
 exports.getRegister = (req, res, next) => {};
 
-//POST/regis
+//POST/register
 exports.postRegister = (req, res, next) => {
   const errors = validationResult(req);
 
@@ -42,8 +42,35 @@ exports.postRegister = (req, res, next) => {
     });
 };
 
-// GET/login
-exports.getLogin = (req, res, next) => {};
-
 // POST/login
-exports.postLogin = (req, res, next) => {};
+exports.postLogin = async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        message: "Validation Failed",
+        errorMessages: errors.array(),
+      });
+    }
+    const { email, password } = req.body;
+
+    const userDoc = await User.findOne({ email });
+    if (!userDoc) {
+      return res.status(401).json({
+        message: "Email not exists",
+      });
+    }
+    const isMatch = bcrypt.compareSync(password, userDoc.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        message: "Please CHeck your credentials",
+      });
+    }
+    return res.status(200).json({ message: "Login Success" });
+  } catch (error) {
+    res.status(400).json({
+      message: error.message,
+    });
+  }
+};

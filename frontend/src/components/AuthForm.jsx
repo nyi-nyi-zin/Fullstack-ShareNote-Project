@@ -17,14 +17,15 @@ const AuthForm = ({ isLogin }) => {
   };
 
   const AuthFormSchema = Yup.object({
-    username: Yup.string()
-      .min(3, "Username is too short")
-      .max(10, "Username is too Long")
-      .required("Username is required"),
+    username: isLogin
+      ? null
+      : Yup.string()
+          .min(3, "Username is too short")
+          .max(10, "Username is too Long")
+          .required("Username is required"),
     email: Yup.string()
       .required("Email is required")
-      .email("Please Enter Valid Email")
-      .required("Email is required"),
+      .email("Please Enter Valid Email"),
     password: Yup.string()
       .min(4, "Passsword is too short")
       .required("Password is Required"),
@@ -32,38 +33,45 @@ const AuthForm = ({ isLogin }) => {
 
   const submitHandler = async (values) => {
     const { username, password, email } = values;
+    let END_POINT = `${import.meta.env.VITE_URL}/register`;
     if (isLogin) {
-    } else {
-      const response = await fetch(`${import.meta.env.VITE_URL}/register`, {
-        method: "POST",
-        body: JSON.stringify({ username, password, email }),
-        headers: {
-          "Content-Type": "application/json",
-        },
+      END_POINT = `${import.meta.env.VITE_URL}/login`;
+    }
+    const response = await fetch(END_POINT, {
+      method: "POST",
+      body: JSON.stringify({ username, password, email }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const toastFire = (message) => {
+      toast.error(message, {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
       });
-      if (response.status === 201) {
-        setRedirect(true);
-      } else if (response.status === 400) {
-        const data = await response.json();
-        const pickedMessage = data.errorMessages[0].msg;
-        console.log(pickedMessage);
-        toast.error(pickedMessage, {
-          position: "top-center",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          transition: Bounce,
-        });
-      }
+    };
+    const responseData = await response.json();
+
+    if (response.status === 201 || response.status === 200) {
+      setRedirect(true);
+    } else if (response.status === 400) {
+      const pickedMessage = responseData.errorMessages[0].msg;
+      toastFire(pickedMessage);
+    } else if (response.status === 401) {
+      toastFire(responseData.message);
     }
   };
 
   if (redirect) {
-    return <Navigate to={"/"} />;
+    return <Navigate to={isLogin ? "/" : "/login"} />;
   }
 
   return (

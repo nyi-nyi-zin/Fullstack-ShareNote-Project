@@ -6,9 +6,6 @@ const authController = require("../controllers/auth");
 
 const User = require("../models/user");
 
-// GET/register
-router.get("/register", authController.getRegister);
-
 // POST/register
 router.post(
   "/register",
@@ -45,10 +42,14 @@ router.post(
   authController.postRegister
 );
 
-// GET/login
-router.get("/login", authController.getLogin);
-
 // POST/login
-router.post("/login", authController.postLogin);
+router.post(
+  "/login",
+  [
+    body("email").isEmail().withMessage("Please Enter Valid Email"),
+    body("password").isLength({ min: 4 }).withMessage("Password is too short"),
+  ],
+  authController.postLogin
+);
 
 module.exports = router;
