@@ -3,11 +3,14 @@ import { Link, Navigate, useParams } from "react-router-dom";
 import { Formik, Field, Form } from "formik";
 import StyledErrorMessage from "./StyledErrorMessage";
 import * as Yup from "yup";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Bounce, ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import { UserContext } from "../contexts/UserContext";
+
 const NoteForm = ({ isCreate }) => {
+  const { token } = useContext(UserContext);
   const { id } = useParams();
 
   const [oldFormData, setOldFormData] = useState({
@@ -87,8 +90,10 @@ const NoteForm = ({ isCreate }) => {
 
     const response = await fetch(url, {
       method,
-
       body: formData,
+      headers: {
+        Authorization: `Bearer ${token.token}`,
+      },
     });
     if (response.status === 201 || response.status === 200) {
       setRedirect(true);

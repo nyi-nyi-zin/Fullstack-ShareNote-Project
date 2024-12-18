@@ -1,5 +1,7 @@
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 //Model
 const User = require("../models/user");
@@ -67,7 +69,12 @@ exports.postLogin = async (req, res, next) => {
         message: "Please CHeck your credentials",
       });
     }
-    return res.status(200).json({ message: "Login Success" });
+    const token = jwt.sign(
+      { email: userDoc.email, userId: userDoc._id },
+      process.env.JWT_KEY,
+      { expiresIn: "1h" }
+    );
+    return res.status(200).json({ token, userId: userDoc._id });
   } catch (error) {
     res.status(400).json({
       message: error.message,
