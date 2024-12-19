@@ -17,8 +17,9 @@ const noteSchema = new Schema(
       type: String,
     },
     author: {
-      type: String,
-      default: "Anonymous",
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
   },
   {

@@ -56,6 +56,7 @@ exports.createNote = (req, res, next) => {
     title,
     content,
     cover_image: cover_image ? cover_image.path : "",
+    author: req.userId,
   })
     .then(() => {
       return res.status(201).json({
@@ -78,6 +79,7 @@ exports.createNote = (req, res, next) => {
 exports.getNote = (req, res, next) => {
   const { id } = req.params;
   Note.findById(id)
+    .populate("author", "username")
     .then((note) => {
       return res.status(200).json({ note });
     })

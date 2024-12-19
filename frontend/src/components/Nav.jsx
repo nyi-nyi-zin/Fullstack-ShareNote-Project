@@ -1,10 +1,14 @@
 import { Link } from "react-router-dom";
-
 import { UserContext } from "../contexts/UserContext";
 import { useContext } from "react";
 
 const Nav = () => {
-  const { token } = useContext(UserContext);
+  const { token, updateToken } = useContext(UserContext);
+
+  const logoutHandler = () => {
+    updateToken(null);
+  };
+
   return (
     <nav className="bg-slate-50 py-4 px-10 flex items-center justify-between">
       <Link to={"/"} className=" text-teal-600 font-bold text-4xl">
@@ -19,10 +23,16 @@ const Nav = () => {
             >
               CreateNote
             </Link>
+            <Link
+              className=" text-teal-600 font-bold font-mono text-2xl"
+              to={"/"}
+              onClick={logoutHandler}
+            >
+              Logout
+            </Link>
           </>
         ) : (
           <>
-            {" "}
             <Link
               className=" text-teal-600 font-bold font-mono text-2xl"
               to={"/login"}

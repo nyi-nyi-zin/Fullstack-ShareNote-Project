@@ -3,6 +3,7 @@ import Note from "../components/Note";
 import { useEffect, useState } from "react";
 import { ToastContainer, toast, Bounce } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import isLogin from "../utils/isLogin";
 
 const Index = () => {
   const [notes, setNotes] = useState([]);
@@ -83,6 +84,7 @@ const Index = () => {
             <h1>Loading.....</h1>
           </>
         )}
+        {!loading && !notes.length && <>No Notes Found</>}
       </section>
 
       <div className="flex justify-center items-center gap-4 mt-4">

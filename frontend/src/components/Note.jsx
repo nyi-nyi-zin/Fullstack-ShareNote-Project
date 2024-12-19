@@ -5,13 +5,20 @@ import {
 } from "@heroicons/react/24/solid";
 import { Link } from "react-router-dom";
 import { formatISO9075 } from "date-fns";
+import { useContext } from "react";
+import { UserContext } from "../contexts/UserContext";
 
 const Note = ({ note, fetchNotes, customAlert }) => {
+  const { token } = useContext(UserContext);
+  const { _id, title, content, createdAt } = note;
   const deleteNote = async () => {
     const response = await fetch(
       `${import.meta.env.VITE_URL}/delete/${note._id}`,
       {
         method: "delete",
+        headers: {
+          Authorization: `Bearer ${token.token}`,
+        },
       }
     );
     if (response.status === 204) {
