@@ -96,6 +96,9 @@ exports.getEdit = (req, res, next) => {
   const { id } = req.params;
   Note.findById(id)
     .then((note) => {
+      if (note.author.toString() !== req.userId) {
+        return res.status(401).json("Auth Fail");
+      }
       return res.status(200).json(note);
     })
     .catch((err) => {
@@ -114,6 +117,10 @@ exports.updateNote = (req, res, next) => {
 
   Note.findById(id)
     .then((note) => {
+      if (note.author.toString() !== req.userId) {
+        return res.status(401).json("Auth Fail");
+      }
+
       note.title = title;
       note.content = content;
       if (cover_image) {
@@ -136,12 +143,17 @@ exports.updateNote = (req, res, next) => {
 // DELETE/note
 exports.deleteNote = (req, res, next) => {
   const { id } = req.params;
-  Note.findByIdAndDelete(id)
+  Note.findById(id)
     .then((note) => {
-      return unlink(note.cover_image);
-    })
-    .then((_) => {
-      return res.status(204).json("Note Deleted");
+      if (note.author.toString() !== req.userId) {
+        return res.status(401).json("Auth Fail");
+      }
+      if (note.cover_image) {
+        unlink(note.cover_image);
+      }
+      return Note.findByIdAndDelete(id).then(() => {
+        return res.status(204).json("Note Deleted");
+      });
     })
     .catch((err) => {
       console.log(err);

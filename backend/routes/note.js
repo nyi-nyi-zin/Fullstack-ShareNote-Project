@@ -32,7 +32,7 @@ router.post(
 router.get("/note/:id", noteController.getNote);
 
 // Render edith page
-router.get("/edit/:id", noteController.getEdit);
+router.get("/edit/:id", authMiddleware, noteController.getEdit);
 
 // UPDATE/note/:id
 router.patch("/update/:id", authMiddleware, noteController.updateNote);

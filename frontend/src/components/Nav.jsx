@@ -48,6 +48,12 @@ const Nav = () => {
           </>
         )}
       </div>
+      {token && token.user_name && (
+        <p>
+          <span className="text-teal-600 font-bold">Login as : </span>
+          {token.user_name}
+        </p>
+      )}
     </nav>
   );
 };

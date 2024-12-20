@@ -4,6 +4,7 @@ import { Formik, Field, Form } from "formik";
 import StyledErrorMessage from "./StyledErrorMessage";
 import * as Yup from "yup";
 import { useContext, useEffect, useRef, useState } from "react";
+
 import { Bounce, ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -11,16 +12,13 @@ import { UserContext } from "../contexts/UserContext";
 
 const NoteForm = ({ isCreate }) => {
   const { token } = useContext(UserContext);
-  const { id } = useParams();
-
-  const [oldFormData, setOldFormData] = useState({
-    title: "",
-    content: "",
-  });
   const [redirect, setRedirect] = useState(false);
+  const [oldFormData, setOldFormData] = useState({});
   const [previewImg, setPreviewImg] = useState(null);
   const [isUpload, setIsUpload] = useState(false);
   const fileRef = useRef();
+
+  const { id } = useParams();
 
   const initialValues = {
     title: isCreate ? "" : oldFormData.title,
@@ -32,9 +30,17 @@ const NoteForm = ({ isCreate }) => {
   const SUPPORTED_FORMATS = ["image/png", "image/jpg", "image/jpeg"];
 
   const fetchOldData = async () => {
-    const response = await fetch(`${import.meta.env.VITE_URL}/edit/${id}`);
-    const data = await response.json();
-    setOldFormData(data);
+    const response = await fetch(`${import.meta.env.VITE_URL}/edit/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token.token}`,
+      },
+    });
+    if (response.status === 200) {
+      const data = await response.json();
+      setOldFormData(data);
+    } else {
+      setRedirect(true);
+    }
   };
 
   useEffect(() => {

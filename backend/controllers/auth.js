@@ -66,15 +66,20 @@ exports.postLogin = async (req, res, next) => {
     const isMatch = bcrypt.compareSync(password, userDoc.password);
     if (!isMatch) {
       return res.status(401).json({
-        message: "Please CHeck your credentials",
+        message: "Please Check your credentials",
       });
     }
     const token = jwt.sign(
-      { email: userDoc.email, userId: userDoc._id },
+      {
+        email: userDoc.email,
+        userId: userDoc._id,
+      },
       process.env.JWT_KEY,
       { expiresIn: "1h" }
     );
-    return res.status(200).json({ token, userId: userDoc._id });
+    return res
+      .status(200)
+      .json({ token, userId: userDoc._id, user_name: userDoc.username });
   } catch (error) {
     res.status(400).json({
       message: error.message,
