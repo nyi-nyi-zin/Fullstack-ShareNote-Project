@@ -41,7 +41,6 @@ exports.getNotes = (req, res, next) => {
 // POST/create
 exports.createNote = (req, res, next) => {
   const { title, content } = req.body;
-  console.log(req.body);
   const cover_image = req.file;
 
   const errors = validationResult(req);
@@ -61,10 +60,6 @@ exports.createNote = (req, res, next) => {
     .then(() => {
       return res.status(201).json({
         message: "Note created",
-        data: {
-          title,
-          content,
-        },
       });
     })
     .catch((err) => {

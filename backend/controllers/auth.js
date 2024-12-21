@@ -6,9 +6,6 @@ require("dotenv").config();
 //Model
 const User = require("../models/user");
 
-// GET/register
-exports.getRegister = (req, res, next) => {};
-
 //POST/register
 exports.postRegister = (req, res, next) => {
   const errors = validationResult(req);
@@ -95,7 +92,6 @@ exports.checkStatus = (req, res, next) => {
   const token = authHeader.split(" ")[1];
   try {
     const tokenMatch = jwt.verify(token, process.env.JWT_KEY);
-    console.log(tokenMatch);
     if (!tokenMatch) {
       return res.status(401).json({ message: "Not authenticated" });
     }

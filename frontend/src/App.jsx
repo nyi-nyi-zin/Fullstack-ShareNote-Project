@@ -8,7 +8,7 @@ import Details from "./pages/Details";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
-import isLoginLoader from "./utils/isLogin.js";
+import isLoginLoader from "./utils/isLogin";
 
 const App = () => {
   const router = createBrowserRouter([

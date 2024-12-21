@@ -3,7 +3,6 @@ import Note from "../components/Note";
 import { useEffect, useState } from "react";
 import { ToastContainer, toast, Bounce } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import isLogin from "../utils/isLogin";
 
 const Index = () => {
   const [notes, setNotes] = useState([]);
@@ -68,7 +67,7 @@ const Index = () => {
   return (
     <>
       <section className="flex gap-6 px-10 mt-10 flex-wrap justify-center items-center">
-        {!loading ? (
+        {!loading && notes.length > 0 ? (
           <>
             {notes.map((note) => (
               <Note

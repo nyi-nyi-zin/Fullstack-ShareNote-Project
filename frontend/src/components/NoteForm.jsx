@@ -68,6 +68,7 @@ const NoteForm = ({ isCreate }) => {
 
   const handleImageChange = (event, setFieldValue) => {
     const selectedImage = event.target.files[0];
+    console.log(selectedImage);
     if (selectedImage) {
       setPreviewImg(URL.createObjectURL(selectedImage));
       setFieldValue("cover_image", selectedImage);
@@ -151,7 +152,7 @@ const NoteForm = ({ isCreate }) => {
         onSubmit={submitHandler}
         enableReinitialize={true}
       >
-        {({ setFieldValue }) => (
+        {({ setFieldValue, isSubmitting }) => (
           <Form encType="multipart/form-data">
             <div className="mb-3">
               <label htmlFor="title" className=" font-medium block">
@@ -271,8 +272,11 @@ const NoteForm = ({ isCreate }) => {
             <button
               className=" text-white bg-teal-600 py-3 font-medium w-full text-center mt-2"
               type="submit"
+              disabled={isSubmitting}
             >
-              {isCreate ? "Save" : " Update"}
+              {isCreate
+                ? `${isSubmitting ? "Uploading..." : "ShareNote"}`
+                : `${isSubmitting ? "Updating..." : "UpdateNote"}`}
             </button>
           </Form>
         )}
