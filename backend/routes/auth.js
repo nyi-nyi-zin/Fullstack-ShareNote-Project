@@ -54,6 +54,6 @@ router.post(
 );
 
 // GET/status
-router.get("status", authController.checkStatus, isAuth);
+router.get("/status", authController.checkStatus, isAuth);
 
 module.exports = router;
